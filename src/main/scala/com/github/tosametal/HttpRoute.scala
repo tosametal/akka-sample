@@ -33,5 +33,15 @@ trait HttpRoute {
         actorSystem ! MainBehavior.MailBoxPrior
         complete(HttpEntity(ContentTypes.`text/plain(UTF-8)`, "OK"))
       }
+    } ~ path("helloft") {
+      get {
+        actorSystem ! MainBehavior.HelloFaultTolerance
+        complete(HttpEntity(ContentTypes.`text/plain(UTF-8)`, "OK"))
+      }
+    } ~ path("failft") {
+      get {
+        actorSystem ! MainBehavior.FailFaultTolerance
+        complete(HttpEntity(ContentTypes.`text/plain(UTF-8)`, "OK"))
+      }
     }
 }

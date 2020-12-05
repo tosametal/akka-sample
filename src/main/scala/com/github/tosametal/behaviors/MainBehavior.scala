@@ -9,6 +9,8 @@ object MainBehavior {
   case object LifecycleShutdown extends Command
   case object MailBoxSleepAndPrint extends Command
   case object MailBoxPrior extends Command
+  case object HelloFaultTolerance extends Command
+  case object FailFaultTolerance extends Command
 
   def apply: Behavior[Command] = Behaviors.setup { context =>
     val lifecycleActor = context.spawn(LifecycleBehavior.apply, "lifecycle-actor")
@@ -17,8 +19,10 @@ object MainBehavior {
       "mailbox-behavior",
       MailboxSelector.fromConfig("prior")
     )
+    val faultToleranceActor = context.spawn(FaultToleranceBehavior.apply, "fault-tolerance-actor")
 
     context.watch(lifecycleActor)
+    context.watch(faultToleranceActor)
 
     Behaviors
       .receiveMessage[Command] {
@@ -33,6 +37,12 @@ object MainBehavior {
           Behaviors.same
         case MailBoxPrior =>
           mailBoxBehavior ! MailBoxBehavior.PriorPrint
+          Behaviors.same
+        case HelloFaultTolerance =>
+          faultToleranceActor ! FaultToleranceBehavior.Hello
+          Behaviors.same
+        case FailFaultTolerance =>
+          faultToleranceActor ! FaultToleranceBehavior.Fail
           Behaviors.same
       }
       .receiveSignal { case (ctx, ChildFailed((ref, throwable))) =>
