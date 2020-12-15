@@ -2,6 +2,7 @@ package com.github.tosametal.behaviors
 
 import akka.actor.typed.{Behavior, ChildFailed, MailboxSelector}
 import akka.actor.typed.scaladsl.Behaviors
+import com.github.tosametal.Counter
 
 object MainBehavior {
   sealed trait Command
@@ -19,7 +20,8 @@ object MainBehavior {
       "mailbox-behavior",
       MailboxSelector.fromConfig("prior")
     )
-    val faultToleranceActor = context.spawn(FaultToleranceBehavior.apply, "fault-tolerance-actor")
+    val counter = new Counter(0)
+    val faultToleranceActor = context.spawn(FaultToleranceBehavior.apply(counter), "fault-tolerance-actor")
 
     context.watch(lifecycleActor)
     context.watch(faultToleranceActor)
